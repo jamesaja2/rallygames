@@ -41,3 +41,5 @@ Route::get('/auth/google/callback', function () {
 Route::get('/auth/google/redirect', function () {
     return Socialite::driver('google')->redirect();
 });
+
+Route::get('/admin/laporan/ringkasan', [\App\Http\Controllers\LaporanController::class, 'exportRingkasan'])->name('laporan.ringkasan');

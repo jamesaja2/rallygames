@@ -43,7 +43,10 @@ class PesertaResource extends Resource
     {
         return $form
             ->schema([
-            TextInput::make('kode_peserta')->required()->unique(),
+            TextInput::make('kode_peserta')
+                ->label('Kode Peserta')
+                ->required()
+                ->unique(ignoreRecord: true),
             TextInput::make('smp_asal')->required(),
             TextInput::make('nama_tim')->required(),
             TextInput::make('saldo')->numeric()->required(),
@@ -91,6 +94,11 @@ class PesertaResource extends Resource
                 })
                 ->modalHeading('Import Data Peserta')
                 ->color('success'),
+            Action::make('Unduh Laporan Ringkasan')
+                ->url(route('laporan.ringkasan'))
+                ->openUrlInNewTab()
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('gray'),
         ])
             ->filters([
                 //

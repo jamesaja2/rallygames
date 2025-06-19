@@ -11,7 +11,8 @@
     </style>
 </head>
 <body>
-    <div class="identitas">
+<h2>Laporan Peserta Sinlui Hot Science Competition</h2>    
+<div class="identitas">
         <strong>{{ $peserta->kode_peserta }}</strong><br>
         {{ $peserta->smp_asal }}
     </div>

@@ -70,9 +70,15 @@ class TransaksiResource extends Resource
             TextColumn::make('peserta.kode_peserta')->label('Kode Peserta'),
             TextColumn::make('keterangan')->label('Keterangan'),
             TextColumn::make('kode_soal')->label('Kode Soal'),
-            TextColumn::make('harga')->label('Harga')->state(
-            fn ($record) => $record->debet ?: $record->kredit
-            )->money('IDR'),
+            TextColumn::make('harga')
+            ->label('Harga')
+            ->getStateUsing(function ($record) {
+                return $record->debet > 0
+                    ? $record->debet
+                    : ($record->kredit > 0 ? $record->kredit : 0);
+            })
+            ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state, 0, ',', '.'))
+            ->sortable(),
             TextColumn::make('total_saldo')->label('Saldo')->money('IDR'),
             ])
             ->filters([
