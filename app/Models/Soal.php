@@ -10,9 +10,16 @@ class Soal extends Model
     protected $fillable = [
     'kode_soal',
     'mapel',
+    'tipe_soal',
     'harga_beli',
     'harga_benar',
     'harga_salah',
+    'kunci_jawaban',
+    'pilihan_jawaban',
 ];
+
+    protected $casts = [
+        'pilihan_jawaban' => 'array',
+    ];
 
 }

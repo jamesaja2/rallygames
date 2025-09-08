@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('peserta', function (Blueprint $table) {
-        $table->string('anggota_1')->nullable();
-        $table->string('anggota_2')->nullable();
-        $table->string('anggota_3')->nullable();
+        Schema::table('soal', function (Blueprint $table) {
+            $table->string('kunci_jawaban')->nullable()->after('harga_salah');
         });
     }
 
@@ -23,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('peserta', function (Blueprint $table) {
-            //
+        Schema::table('soal', function (Blueprint $table) {
+            $table->dropColumn('kunci_jawaban');
         });
     }
 };

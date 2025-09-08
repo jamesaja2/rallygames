@@ -16,11 +16,13 @@ class SoalImport implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         return new Soal([
-            'kode_soal'    => $row['kode_soal'],
-            'mapel'        => $row['mapel'],
-            'harga_beli'   => (int) $row['harga_beli'],
-            'harga_benar'  => (int) $row['harga_benar'],
-            'harga_salah'  => (int) $row['harga_salah'],
+            'kode_soal'     => $row['kode_soal'],
+            'mapel'         => $row['mapel'],
+            'tipe_soal'     => $row['tipe_soal'] ?? 'Pilihan Ganda',
+            'harga_beli'    => (int) $row['harga_beli'],
+            'harga_benar'   => (int) $row['harga_benar'],
+            'harga_salah'   => (int) $row['harga_salah'],
+            'kunci_jawaban' => $row['kunci_jawaban'] ?? null,
         ]);
     }
 }

@@ -13,13 +13,15 @@ return new class extends Migration
     {
         Schema::create('transaksi', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('peserta_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('peserta_id');
             $table->string('keterangan'); // Modal, Jual, Beli
             $table->string('kode_soal')->nullable();
             $table->decimal('debet', 10, 2)->default(0);   // Tambah
             $table->decimal('kredit', 10, 2)->default(0);  // Kurang
             $table->decimal('total_saldo', 10, 2);         // Saldo saat transaksi
             $table->timestamps();
+            
+            $table->foreign('peserta_id')->references('id')->on('peserta')->onDelete('cascade');
         });
     }
 

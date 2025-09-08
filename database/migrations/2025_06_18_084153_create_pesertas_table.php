@@ -16,6 +16,9 @@ return new class extends Migration
             $table->string('kode_peserta')->unique(); // u25_SHSC_01
             $table->string('smp_asal');
             $table->string('nama_tim');
+            $table->string('anggota_1')->nullable();
+            $table->string('anggota_2')->nullable();
+            $table->string('anggota_3')->nullable();
             $table->decimal('saldo', 10, 2)->default(0);
             $table->timestamps();
         });
