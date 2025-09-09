@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RolePermissionSeeder::class,
+            AdminSeeder::class,
             PesertaSeeder::class,
             SoalSeeder::class,
             TransaksiSeeder::class,
@@ -22,5 +23,6 @@ class DatabaseSeeder extends Seeder
 
         $this->command->info('🎉 All seeders completed successfully!');
         $this->command->info('📊 Sample data for Rally Games has been created.');
+        $this->command->info('👤 Admin accounts have been created.');
     }
 }
