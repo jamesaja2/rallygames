@@ -4,42 +4,106 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Rally Games - Form Transaksi</title>
+    <title>SHSC - Form Transaksi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         /* Custom styling for select dropdowns */
         select option {
-            background-color: #1f2937 !important; /* dark gray */
-            color: #ffffff !important; /* white text */
+            background-color: #ffffff !important;
+            color: #374151 !important;
             padding: 8px !important;
         }
         
         select option:hover {
-            background-color: #374151 !important; /* darker gray on hover */
+            background-color: #f3f4f6 !important;
         }
         
         select option:checked {
-            background-color: #6366f1 !important; /* indigo when selected */
+            background-color: #3b82f6 !important;
+            color: #ffffff !important;
         }
         
         /* For better visibility */
         select {
-            background-color: rgba(255, 255, 255, 0.1) !important;
-            color: white !important;
+            background-color: #ffffff !important;
+            color: #374151 !important;
+            border: 1px solid #d1d5db !important;
+        }
+        
+        /* Force jawaban button styles to prevent external CSS conflicts */
+        .jawaban-option {
+            background-color: #ffffff !important;
+            color: #111827 !important;
+            border: 2px solid #111827 !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .jawaban-option:hover {
+            background-color: #f9fafb !important;
+            border-color: #374151 !important;
+            color: #111827 !important;
+        }
+        
+        .jawaban-option.selected {
+            background-color: #111827 !important;
+            color: #ffffff !important;
+            border-color: #111827 !important;
+        }
+        
+        .jawaban-kompleks-option {
+            background-color: #ffffff !important;
+            color: #111827 !important;
+            border: 2px solid #111827 !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .jawaban-kompleks-option:hover {
+            background-color: #f9fafb !important;
+            border-color: #374151 !important;
+            color: #111827 !important;
+        }
+        
+        .jawaban-kompleks-option.selected {
+            background-color: #111827 !important;
+            color: #ffffff !important;
+            border-color: #111827 !important;
+        }
+        
+        /* Prevent any purple/indigo colors */
+        .jawaban-option:focus,
+        .jawaban-kompleks-option:focus {
+            outline: none !important;
+            ring: none !important;
+            box-shadow: none !important;
+        }
+        
+        /* Tim selection styling */
+        .tim-item.selected {
+            ring: 2px solid #111827 !important;
+            ring-color: #111827 !important;
+        }
+        
+        /* Aksi selection styling */
+        .aksi-item.selected {
+            ring: 4px solid #111827 !important;
+            ring-color: #111827 !important;
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 min-h-screen">
+<body class="bg-gray-50 min-h-screen">
     <!-- Header -->
-    <div class="bg-white/10 backdrop-blur-lg border-b border-white/20">
+    <div class="bg-white shadow-sm border-b border-gray-200">
         <div class="container mx-auto px-6 py-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
-                    <a href="{{ route('public.dashboard') }}" class="bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg mr-4 transition-colors">
+                    <a href="{{ route('public.dashboard') }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded-lg mr-4 transition-colors">
                         <i class="fas fa-arrow-left"></i>
                     </a>
-                    <h1 class="text-2xl font-bold text-white">Form Transaksi</h1>
+                    <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center mr-3 border border-gray-200">
+                        <img src="{{ asset('logo.png') }}" alt="SHSC Logo" class="w-5 h-5 object-contain">
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-900">Form Transaksi</h1>
                 </div>
             </div>
         </div>
@@ -50,41 +114,41 @@
             <!-- Progress Steps -->
             <div class="flex items-center justify-center mb-8">
                 <div class="flex items-center">
-                    <div id="step-1" class="step-indicator active flex items-center justify-center w-10 h-10 rounded-full bg-indigo-500 text-white font-bold">1</div>
-                    <div class="step-line w-16 h-1 bg-gray-400 mx-2"></div>
-                    <div id="step-2" class="step-indicator flex items-center justify-center w-10 h-10 rounded-full bg-gray-400 text-white font-bold">2</div>
-                    <div class="step-line w-16 h-1 bg-gray-400 mx-2"></div>
-                    <div id="step-3" class="step-indicator flex items-center justify-center w-10 h-10 rounded-full bg-gray-400 text-white font-bold">3</div>
-                    <div class="step-line w-16 h-1 bg-gray-400 mx-2"></div>
-                    <div id="step-4" class="step-indicator flex items-center justify-center w-10 h-10 rounded-full bg-gray-400 text-white font-bold">4</div>
+                    <div id="step-1" class="step-indicator active flex items-center justify-center w-10 h-10 rounded-full bg-gray-900 text-white font-bold border-2 border-gray-900">1</div>
+                    <div class="step-line w-16 h-1 bg-gray-300 mx-2"></div>
+                    <div id="step-2" class="step-indicator flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-gray-600 font-bold border-2 border-gray-300">2</div>
+                    <div class="step-line w-16 h-1 bg-gray-300 mx-2"></div>
+                    <div id="step-3" class="step-indicator flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-gray-600 font-bold border-2 border-gray-300">3</div>
+                    <div class="step-line w-16 h-1 bg-gray-300 mx-2"></div>
+                    <div id="step-4" class="step-indicator flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-gray-600 font-bold border-2 border-gray-300">4</div>
                 </div>
             </div>
 
             <!-- Form Container -->
-            <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20">
+            <div class="bg-white rounded-xl p-8 border border-gray-200 shadow-sm">
                 <!-- Step 1: Pilih Tim -->
                 <div id="step-content-1" class="step-content">
-                    <h2 class="text-2xl font-bold text-white mb-6 text-center">Pilih Tim</h2>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Pilih Tim</h2>
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-white font-semibold mb-2">Cari Tim:</label>
+                            <label class="block text-gray-700 font-semibold mb-2">Cari Tim:</label>
                             <input type="text" id="search-tim" placeholder="Ketik nama tim..." 
-                                   class="w-full px-4 py-3 bg-white/10 border border-white/30 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                   class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent">
                         </div>
                         <div id="tim-list" class="space-y-2 max-h-64 overflow-y-auto">
                             @foreach($pesertas as $peserta)
-                            <div class="tim-item bg-white/5 hover:bg-white/20 p-4 rounded-xl cursor-pointer transition-all" 
+                            <div class="tim-item bg-gray-50 hover:bg-gray-100 p-4 rounded-xl cursor-pointer transition-all border border-gray-200" 
                                  data-id="{{ $peserta->id }}" 
                                  data-nama="{{ $peserta->nama_tim }}"
                                  data-saldo="{{ $peserta->saldo }}">
                                 <div class="flex justify-between items-center">
                                     <div>
-                                        <h4 class="text-white font-semibold">{{ $peserta->nama_tim }}</h4>
-                                        <p class="text-gray-400 text-sm">{{ $peserta->smp_asal }}</p>
+                                        <h4 class="text-gray-900 font-semibold">{{ $peserta->nama_tim }}</h4>
+                                        <p class="text-gray-600 text-sm">{{ $peserta->smp_asal }}</p>
                                     </div>
                                     <div class="text-right">
-                                        <p class="text-white font-bold">Rp {{ number_format($peserta->saldo, 0, ',', '.') }}</p>
-                                        <p class="text-gray-400 text-sm">{{ $peserta->kode_peserta }}</p>
+                                        <p class="text-gray-900 font-bold">Rp {{ number_format($peserta->saldo, 0, ',', '.') }}</p>
+                                        <p class="text-gray-500 text-sm">{{ $peserta->kode_peserta }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -95,22 +159,22 @@
 
                 <!-- Step 2: Pilih Aksi -->
                 <div id="step-content-2" class="step-content hidden">
-                    <h2 class="text-2xl font-bold text-white mb-6 text-center">Pilih Aksi</h2>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Pilih Aksi</h2>
                     <div class="grid grid-cols-2 gap-6">
-                        <div class="aksi-item bg-gradient-to-br from-green-500 to-emerald-600 p-6 rounded-3xl cursor-pointer hover:scale-105 transition-transform" 
+                        <div class="aksi-item bg-green-50 border-2 border-green-200 p-6 rounded-xl cursor-pointer hover:border-green-400 hover:bg-green-100 transition-all" 
                              data-aksi="beli">
                             <div class="text-center">
-                                <i class="fas fa-shopping-cart text-white text-4xl mb-4"></i>
-                                <h3 class="text-white font-bold text-xl mb-2">BELI</h3>
-                                <p class="text-white/80 text-sm">Beli soal untuk tim</p>
+                                <i class="fas fa-shopping-cart text-green-600 text-4xl mb-4"></i>
+                                <h3 class="text-green-700 font-bold text-xl mb-2">BELI</h3>
+                                <p class="text-green-600 text-sm">Beli soal untuk tim</p>
                             </div>
                         </div>
-                        <div class="aksi-item bg-gradient-to-br from-purple-500 to-pink-600 p-6 rounded-3xl cursor-pointer hover:scale-105 transition-transform" 
+                        <div class="aksi-item bg-purple-50 border-2 border-purple-200 p-6 rounded-xl cursor-pointer hover:border-purple-400 hover:bg-purple-100 transition-all" 
                              data-aksi="jual">
                             <div class="text-center">
-                                <i class="fas fa-hand-holding-usd text-white text-4xl mb-4"></i>
-                                <h3 class="text-white font-bold text-xl mb-2">JUAL</h3>
-                                <p class="text-white/80 text-sm">Jual soal dengan jawaban</p>
+                                <i class="fas fa-hand-holding-usd text-purple-600 text-4xl mb-4"></i>
+                                <h3 class="text-purple-700 font-bold text-xl mb-2">JUAL</h3>
+                                <p class="text-purple-600 text-sm">Jual soal dengan jawaban</p>
                             </div>
                         </div>
                     </div>
@@ -118,14 +182,14 @@
 
                 <!-- Step 3: Detail Transaksi -->
                 <div id="step-content-3" class="step-content hidden">
-                    <h2 class="text-2xl font-bold text-white mb-6 text-center">Detail Transaksi</h2>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Detail Transaksi</h2>
                     
                     <!-- Untuk Beli -->
                     <div id="beli-section" class="hidden">
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-white font-semibold mb-2">Pilih Soal:</label>
-                                <select id="soal-beli" class="w-full px-4 py-3 bg-white/10 border border-white/30 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <label class="block text-gray-700 font-semibold mb-2">Pilih Soal:</label>
+                                <select id="soal-beli" class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent">
                                     <option value="">-- Pilih Soal --</option>
                                     @foreach($soals as $soal)
                                     <option value="{{ $soal->kode_soal }}" data-harga="{{ $soal->harga_beli }}">
@@ -134,8 +198,8 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div id="harga-beli-info" class="hidden bg-blue-500/20 border border-blue-500/50 rounded-xl p-4">
-                                <p class="text-white">Harga: <span id="harga-beli-text" class="font-bold"></span></p>
+                            <div id="harga-beli-info" class="hidden bg-blue-50 border border-blue-200 rounded-xl p-4">
+                                <p class="text-blue-800">Harga: <span id="harga-beli-text" class="font-bold"></span></p>
                             </div>
                         </div>
                     </div>
@@ -144,8 +208,8 @@
                     <div id="jual-section" class="hidden">
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-white font-semibold mb-2">Pilih Soal:</label>
-                                <select id="soal-jual" class="w-full px-4 py-3 bg-white/10 border border-white/30 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <label class="block text-gray-700 font-semibold mb-2">Pilih Soal:</label>
+                                <select id="soal-jual" class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent">
                                     <option value="">-- Pilih Soal --</option>
                                     @foreach($soals as $soal)
                                     <option value="{{ $soal->kode_soal }}" 
@@ -163,43 +227,43 @@
                             <div id="jawaban-container" class="hidden">
                                 <!-- Pilihan Ganda -->
                                 <div id="jawaban-pilgan" class="hidden">
-                                    <label class="block text-white font-semibold mb-2">Pilih Jawaban:</label>
+                                    <label class="block text-gray-700 font-semibold mb-2">Pilih Jawaban:</label>
                                     <div class="grid grid-cols-5 gap-3">
-                                        <button type="button" class="jawaban-option bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl py-3 px-4 text-white font-bold transition-all" data-value="A">A</button>
-                                        <button type="button" class="jawaban-option bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl py-3 px-4 text-white font-bold transition-all" data-value="B">B</button>
-                                        <button type="button" class="jawaban-option bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl py-3 px-4 text-white font-bold transition-all" data-value="C">C</button>
-                                        <button type="button" class="jawaban-option bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl py-3 px-4 text-white font-bold transition-all" data-value="D">D</button>
-                                        <button type="button" class="jawaban-option bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl py-3 px-4 text-white font-bold transition-all" data-value="E">E</button>
+                                        <button type="button" class="jawaban-option bg-white hover:bg-gray-50 border-2 border-gray-900 hover:border-gray-700 rounded-xl py-3 px-4 text-gray-900 font-bold transition-all shadow-sm" data-value="A">A</button>
+                                        <button type="button" class="jawaban-option bg-white hover:bg-gray-50 border-2 border-gray-900 hover:border-gray-700 rounded-xl py-3 px-4 text-gray-900 font-bold transition-all shadow-sm" data-value="B">B</button>
+                                        <button type="button" class="jawaban-option bg-white hover:bg-gray-50 border-2 border-gray-900 hover:border-gray-700 rounded-xl py-3 px-4 text-gray-900 font-bold transition-all shadow-sm" data-value="C">C</button>
+                                        <button type="button" class="jawaban-option bg-white hover:bg-gray-50 border-2 border-gray-900 hover:border-gray-700 rounded-xl py-3 px-4 text-gray-900 font-bold transition-all shadow-sm" data-value="D">D</button>
+                                        <button type="button" class="jawaban-option bg-white hover:bg-gray-50 border-2 border-gray-900 hover:border-gray-700 rounded-xl py-3 px-4 text-gray-900 font-bold transition-all shadow-sm" data-value="E">E</button>
                                     </div>
                                 </div>
 
                                 <!-- Pilihan Ganda Kompleks -->
                                 <div id="jawaban-kompleks" class="hidden">
-                                    <label class="block text-white font-semibold mb-2">Pilih Jawaban (Boleh lebih dari satu):</label>
+                                    <label class="block text-gray-700 font-semibold mb-2">Pilih Jawaban (Boleh lebih dari satu):</label>
                                     <div class="grid grid-cols-5 gap-3 mb-2">
-                                        <button type="button" class="jawaban-kompleks-option bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl py-3 px-4 text-white font-bold transition-all" data-value="A">A</button>
-                                        <button type="button" class="jawaban-kompleks-option bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl py-3 px-4 text-white font-bold transition-all" data-value="B">B</button>
-                                        <button type="button" class="jawaban-kompleks-option bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl py-3 px-4 text-white font-bold transition-all" data-value="C">C</button>
-                                        <button type="button" class="jawaban-kompleks-option bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl py-3 px-4 text-white font-bold transition-all" data-value="D">D</button>
-                                        <button type="button" class="jawaban-kompleks-option bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl py-3 px-4 text-white font-bold transition-all" data-value="E">E</button>
+                                        <button type="button" class="jawaban-kompleks-option bg-white hover:bg-gray-50 border-2 border-gray-900 hover:border-gray-700 rounded-xl py-3 px-4 text-gray-900 font-bold transition-all shadow-sm" data-value="A">A</button>
+                                        <button type="button" class="jawaban-kompleks-option bg-white hover:bg-gray-50 border-2 border-gray-900 hover:border-gray-700 rounded-xl py-3 px-4 text-gray-900 font-bold transition-all shadow-sm" data-value="B">B</button>
+                                        <button type="button" class="jawaban-kompleks-option bg-white hover:bg-gray-50 border-2 border-gray-900 hover:border-gray-700 rounded-xl py-3 px-4 text-gray-900 font-bold transition-all shadow-sm" data-value="C">C</button>
+                                        <button type="button" class="jawaban-kompleks-option bg-white hover:bg-gray-50 border-2 border-gray-900 hover:border-gray-700 rounded-xl py-3 px-4 text-gray-900 font-bold transition-all shadow-sm" data-value="D">D</button>
+                                        <button type="button" class="jawaban-kompleks-option bg-white hover:bg-gray-50 border-2 border-gray-900 hover:border-gray-700 rounded-xl py-3 px-4 text-gray-900 font-bold transition-all shadow-sm" data-value="E">E</button>
                                     </div>
-                                    <p class="text-gray-400 text-sm">Pilihan Anda: <span id="selected-kompleks" class="text-white font-semibold"></span></p>
+                                    <p class="text-gray-600 text-sm">Pilihan Anda: <span id="selected-kompleks" class="text-gray-900 font-semibold"></span></p>
                                 </div>
 
                                 <!-- Essai -->
                                 <div id="jawaban-essai" class="hidden">
-                                    <label class="block text-white font-semibold mb-2">Jawaban Essai:</label>
+                                    <label class="block text-gray-700 font-semibold mb-2">Jawaban Essai:</label>
                                     <textarea id="jawaban-text" placeholder="Tulis jawaban essai Anda di sini..." 
-                                           class="w-full px-4 py-3 bg-white/10 border border-white/30 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none" 
+                                           class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none" 
                                            rows="4"></textarea>
                                 </div>
                                 
                                 <!-- Hidden input for actual answer -->
                                 <input type="hidden" id="jawaban" name="jawaban">
                             </div>
-                            <div id="harga-jual-info" class="hidden bg-purple-500/20 border border-purple-500/50 rounded-xl p-4">
-                                <p class="text-white">Jika Benar: <span id="harga-benar-text" class="font-bold text-green-300"></span></p>
-                                <p class="text-white">Jika Salah: <span id="harga-salah-text" class="font-bold text-red-300"></span></p>
+                            <div id="harga-jual-info" class="hidden bg-purple-50 border border-purple-200 rounded-xl p-4">
+                                <p class="text-purple-800">Jika Benar: <span id="harga-benar-text" class="font-bold text-green-600"></span></p>
+                                <p class="text-purple-800">Jika Salah: <span id="harga-salah-text" class="font-bold text-red-600"></span></p>
                             </div>
                         </div>
                     </div>
@@ -207,8 +271,8 @@
 
                 <!-- Step 4: Konfirmasi -->
                 <div id="step-content-4" class="step-content hidden">
-                    <h2 class="text-2xl font-bold text-white mb-6 text-center">Konfirmasi Transaksi</h2>
-                    <div id="konfirmasi-detail" class="bg-white/5 rounded-xl p-6 space-y-4">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Konfirmasi Transaksi</h2>
+                    <div id="konfirmasi-detail" class="bg-gray-50 rounded-xl p-6 space-y-4 border border-gray-200">
                         <!-- Detail will be filled by JS -->
                     </div>
                 </div>
@@ -219,7 +283,7 @@
                         <i class="fas fa-arrow-left mr-2"></i>
                         Sebelumnya
                     </button>
-                    <button id="btn-next" class="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-3 rounded-xl transition-colors ml-auto disabled:opacity-50" disabled>
+                    <button id="btn-next" class="bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-xl transition-colors ml-auto disabled:opacity-50" disabled>
                         Selanjutnya
                         <i class="fas fa-arrow-right ml-2"></i>
                     </button>
@@ -308,13 +372,11 @@
                 button.addEventListener('click', function() {
                     // Remove previous selection
                     document.querySelectorAll('.jawaban-option').forEach(btn => {
-                        btn.classList.remove('bg-indigo-500', 'ring-2', 'ring-white');
-                        btn.classList.add('bg-white/10');
+                        btn.classList.remove('selected');
                     });
                     
                     // Add selection
-                    this.classList.remove('bg-white/10');
-                    this.classList.add('bg-indigo-500', 'ring-2', 'ring-white');
+                    this.classList.add('selected');
                     
                     document.getElementById('jawaban').value = this.dataset.value;
                     checkStep3Validity();
@@ -324,9 +386,7 @@
             // Setup jawaban kompleks buttons
             document.querySelectorAll('.jawaban-kompleks-option').forEach(button => {
                 button.addEventListener('click', function() {
-                    this.classList.toggle('bg-indigo-500');
-                    this.classList.toggle('ring-2');
-                    this.classList.toggle('ring-white');
+                    this.classList.toggle('selected');
                     
                     updateKompleksSelection();
                     checkStep3Validity();
@@ -362,11 +422,11 @@
         function selectTim(element) {
             // Remove previous selection
             document.querySelectorAll('.tim-item').forEach(item => {
-                item.classList.remove('ring-2', 'ring-indigo-500');
+                item.classList.remove('selected');
             });
             
             // Add selection
-            element.classList.add('ring-2', 'ring-indigo-500');
+            element.classList.add('selected');
             
             selectedData.peserta_id = element.dataset.id;
             selectedData.nama_tim = element.dataset.nama;
@@ -385,9 +445,9 @@
             
             // Update UI
             document.querySelectorAll('.aksi-item').forEach(item => {
-                item.classList.remove('ring-4', 'ring-white');
+                item.classList.remove('selected');
             });
-            document.querySelector(`[data-aksi="${aksi}"]`).classList.add('ring-4', 'ring-white');
+            document.querySelector(`[data-aksi="${aksi}"]`).classList.add('selected');
             
             // Load soal berdasarkan peserta dan jenis transaksi
             if (selectedData.peserta_id) {
@@ -546,13 +606,11 @@
             
             // Reset selections
             document.querySelectorAll('.jawaban-option').forEach(btn => {
-                btn.classList.remove('bg-indigo-500', 'ring-2', 'ring-white');
-                btn.classList.add('bg-white/10');
+                btn.classList.remove('selected');
             });
             
             document.querySelectorAll('.jawaban-kompleks-option').forEach(btn => {
-                btn.classList.remove('bg-indigo-500', 'ring-2', 'ring-white');
-                btn.classList.add('bg-white/10');
+                btn.classList.remove('selected');
             });
             
             document.getElementById('jawaban-text').value = '';
@@ -579,18 +637,16 @@
                                 pilihan.forEach(item => {
                                     const button = document.createElement('button');
                                     button.type = 'button';
-                                    button.className = 'jawaban-option bg-white/10 hover:bg-white/20 text-white px-4 py-3 rounded-xl transition-colors text-left';
+                                    button.className = 'jawaban-option bg-white hover:bg-gray-50 border-2 border-gray-900 hover:border-gray-700 px-4 py-3 rounded-xl transition-all text-left shadow-sm';
                                     button.dataset.value = item.huruf;
                                     button.innerHTML = `<span class="font-bold">${item.huruf}:</span> ${item.teks}`;
                                     
                                     button.addEventListener('click', function() {
                                         document.querySelectorAll('.jawaban-option').forEach(btn => {
-                                            btn.classList.remove('bg-indigo-500', 'ring-2', 'ring-white');
-                                            btn.classList.add('bg-white/10');
+                                            btn.classList.remove('selected');
                                         });
                                         
-                                        this.classList.remove('bg-white/10');
-                                        this.classList.add('bg-indigo-500', 'ring-2', 'ring-white');
+                                        this.classList.add('selected');
                                         
                                         document.getElementById('jawaban').value = this.dataset.value;
                                         checkStep3Validity();
@@ -603,18 +659,16 @@
                                 Object.entries(pilihan).forEach(([key, value]) => {
                                     const button = document.createElement('button');
                                     button.type = 'button';
-                                    button.className = 'jawaban-option bg-white/10 hover:bg-white/20 text-white px-4 py-3 rounded-xl transition-colors text-left';
+                                    button.className = 'jawaban-option bg-white hover:bg-gray-50 border-2 border-gray-900 hover:border-gray-700 px-4 py-3 rounded-xl transition-all text-left shadow-sm';
                                     button.dataset.value = key;
                                     button.innerHTML = `<span class="font-bold">${key.toUpperCase()}:</span> ${value}`;
                                     
                                     button.addEventListener('click', function() {
                                         document.querySelectorAll('.jawaban-option').forEach(btn => {
-                                            btn.classList.remove('bg-indigo-500', 'ring-2', 'ring-white');
-                                            btn.classList.add('bg-white/10');
+                                            btn.classList.remove('selected');
                                         });
                                         
-                                        this.classList.remove('bg-white/10');
-                                        this.classList.add('bg-indigo-500', 'ring-2', 'ring-white');
+                                        this.classList.add('selected');
                                         
                                         document.getElementById('jawaban').value = this.dataset.value;
                                         checkStep3Validity();
@@ -643,15 +697,12 @@
                                 pilihan.forEach(item => {
                                     const button = document.createElement('button');
                                     button.type = 'button';
-                                    button.className = 'jawaban-kompleks-option bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-xl transition-colors text-left';
+                                    button.className = 'jawaban-kompleks-option bg-white hover:bg-gray-50 border-2 border-gray-900 hover:border-gray-700 px-4 py-2 rounded-xl transition-all text-left shadow-sm';
                                     button.dataset.value = item.huruf;
                                     button.innerHTML = `<span class="font-bold">${item.huruf}:</span> ${item.teks}`;
                                     
                                     button.addEventListener('click', function() {
-                                        this.classList.toggle('bg-indigo-500');
-                                        this.classList.toggle('ring-2');
-                                        this.classList.toggle('ring-white');
-                                        this.classList.toggle('bg-white/10');
+                                        this.classList.toggle('selected');
                                         
                                         updateKompleksSelection();
                                         checkStep3Validity();
@@ -664,15 +715,12 @@
                                 Object.entries(pilihan).forEach(([key, value]) => {
                                     const button = document.createElement('button');
                                     button.type = 'button';
-                                    button.className = 'jawaban-kompleks-option bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-xl transition-colors text-left';
+                                    button.className = 'jawaban-kompleks-option bg-white hover:bg-gray-50 border-2 border-gray-900 hover:border-gray-700 px-4 py-2 rounded-xl transition-all text-left shadow-sm';
                                     button.dataset.value = key;
                                     button.innerHTML = `<span class="font-bold">${key}:</span> ${value}`;
                                     
                                     button.addEventListener('click', function() {
-                                        this.classList.toggle('bg-indigo-500');
-                                        this.classList.toggle('ring-2');
-                                        this.classList.toggle('ring-white');
-                                        this.classList.toggle('bg-white/10');
+                                        this.classList.toggle('selected');
                                         
                                         updateKompleksSelection();
                                         checkStep3Validity();
@@ -694,7 +742,7 @@
         function updateKompleksSelection() {
             const selected = [];
             document.querySelectorAll('.jawaban-kompleks-option').forEach(btn => {
-                if (btn.classList.contains('bg-indigo-500')) {
+                if (btn.classList.contains('selected')) {
                     selected.push(btn.dataset.value);
                 }
             });
@@ -724,28 +772,28 @@
             let html = `
                 <div class="space-y-3">
                     <div class="flex justify-between">
-                        <span class="text-gray-300">Tim:</span>
-                        <span class="text-white font-semibold">${selectedData.nama_tim}</span>
+                        <span class="text-gray-600">Tim:</span>
+                        <span class="text-gray-900 font-semibold">${selectedData.nama_tim}</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-300">Saldo Saat Ini:</span>
-                        <span class="text-white font-semibold">Rp ${new Intl.NumberFormat('id-ID').format(selectedData.saldo)}</span>
+                        <span class="text-gray-600">Saldo Saat Ini:</span>
+                        <span class="text-gray-900 font-semibold">Rp ${new Intl.NumberFormat('id-ID').format(selectedData.saldo)}</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-300">Aksi:</span>
-                        <span class="text-white font-semibold uppercase">${selectedData.jenis}</span>
+                        <span class="text-gray-600">Aksi:</span>
+                        <span class="text-gray-900 font-semibold uppercase">${selectedData.jenis}</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-300">Soal:</span>
-                        <span class="text-white font-semibold">${selectedData.kode_soal}</span>
+                        <span class="text-gray-600">Soal:</span>
+                        <span class="text-gray-900 font-semibold">${selectedData.kode_soal}</span>
                     </div>
             `;
             
             if (selectedData.tipe_soal) {
                 html += `
                     <div class="flex justify-between">
-                        <span class="text-gray-300">Tipe Soal:</span>
-                        <span class="text-white font-semibold">${selectedData.tipe_soal}</span>
+                        <span class="text-gray-600">Tipe Soal:</span>
+                        <span class="text-gray-900 font-semibold">${selectedData.tipe_soal}</span>
                     </div>
                 `;
             }
@@ -753,8 +801,8 @@
             if (selectedData.jenis === 'beli') {
                 html += `
                     <div class="flex justify-between">
-                        <span class="text-gray-300">Harga:</span>
-                        <span class="text-red-300 font-semibold">-Rp ${new Intl.NumberFormat('id-ID').format(selectedData.harga)}</span>
+                        <span class="text-gray-600">Harga:</span>
+                        <span class="text-red-600 font-semibold">-Rp ${new Intl.NumberFormat('id-ID').format(selectedData.harga)}</span>
                     </div>
                 `;
             } else {
@@ -765,8 +813,8 @@
                 
                 html += `
                     <div class="flex justify-between">
-                        <span class="text-gray-300">Jawaban:</span>
-                        <span class="text-white font-semibold">${jawabanDisplay}</span>
+                        <span class="text-gray-600">Jawaban:</span>
+                        <span class="text-gray-900 font-semibold">${jawabanDisplay}</span>
                     </div>
                     <div class="border-t border-white/20 pt-3">
                         <div class="flex justify-between">
@@ -826,11 +874,11 @@
             for (let i = 1; i <= 4; i++) {
                 const indicator = document.getElementById(`step-${i}`);
                 if (i <= currentStep) {
-                    indicator.classList.add('bg-indigo-500');
-                    indicator.classList.remove('bg-gray-400');
+                    indicator.classList.add('bg-gray-900', 'border-gray-900', 'text-white');
+                    indicator.classList.remove('bg-gray-300', 'border-gray-300', 'text-gray-600');
                 } else {
-                    indicator.classList.add('bg-gray-400');
-                    indicator.classList.remove('bg-indigo-500');
+                    indicator.classList.add('bg-gray-300', 'border-gray-300', 'text-gray-600');
+                    indicator.classList.remove('bg-gray-900', 'border-gray-900', 'text-white');
                 }
             }
             
@@ -935,11 +983,11 @@
             
             // Reset UI
             document.querySelectorAll('.tim-item').forEach(item => {
-                item.classList.remove('ring-2', 'ring-indigo-500');
+                item.classList.remove('selected');
             });
             
             document.querySelectorAll('.aksi-item').forEach(item => {
-                item.classList.remove('ring-4', 'ring-white');
+                item.classList.remove('selected');
             });
             
             document.getElementById('soal-beli').value = '';
@@ -950,13 +998,11 @@
             
             // Reset jawaban options
             document.querySelectorAll('.jawaban-option').forEach(btn => {
-                btn.classList.remove('bg-indigo-500', 'ring-2', 'ring-white');
-                btn.classList.add('bg-white/10');
+                btn.classList.remove('selected');
             });
             
             document.querySelectorAll('.jawaban-kompleks-option').forEach(btn => {
-                btn.classList.remove('bg-indigo-500', 'ring-2', 'ring-white');
-                btn.classList.add('bg-white/10');
+                btn.classList.remove('selected');
             });
             
             document.getElementById('selected-kompleks').textContent = '';
