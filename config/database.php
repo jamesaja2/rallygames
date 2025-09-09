@@ -62,6 +62,24 @@ return [
             ]) : [],
         ],
 
+        // Konfigurasi khusus untuk hosting
+        'mysql_hosting' => [
+            'driver' => 'mysql',
+            'host' => 'localhost',
+            'port' => '3306',
+            'database' => 'u1736135_hotsains',
+            'username' => 'u1736135_hotsains',
+            'password' => '02juni2020LENOVO', // Ganti dengan password yang benar
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => [],
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),
