@@ -17,6 +17,8 @@ use App\Models\Soal;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\Filter;
 
 
 class TransaksiResource extends Resource
@@ -47,6 +49,7 @@ class TransaksiResource extends Resource
                 ->label('Keterangan')
                 ->options([
                     'Beli' => 'Beli',
+                    'Soal Gratis' => 'Soal Gratis',
                     'Jual - Benar' => 'Jual - Benar',
                     'Jual - Salah' => 'Jual - Salah',
                     'Modal' => 'Modal',
@@ -80,9 +83,10 @@ class TransaksiResource extends Resource
     {
         return $table
             ->columns([
-            TextColumn::make('peserta.kode_peserta')->label('Kode Peserta'),
-            TextColumn::make('keterangan')->label('Keterangan'),
-            TextColumn::make('kode_soal')->label('Kode Soal'),
+            TextColumn::make('peserta.kode_peserta')->label('Kode Peserta')->searchable(),
+            TextColumn::make('peserta.nama_tim')->label('Nama Tim')->searchable(),
+            TextColumn::make('keterangan')->label('Keterangan')->searchable(),
+            TextColumn::make('kode_soal')->label('Kode Soal')->searchable(),
             TextColumn::make('harga')
             ->label('Harga')
             ->getStateUsing(function ($record) {
@@ -92,10 +96,46 @@ class TransaksiResource extends Resource
             })
             ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state, 0, ',', '.'))
             ->sortable(),
-            TextColumn::make('total_saldo')->label('Saldo')->money('IDR'),
+            TextColumn::make('total_saldo')->label('Saldo')->money('IDR')->sortable(),
+            TextColumn::make('created_at')->label('Tanggal')->dateTime()->sortable(),
             ])
             ->filters([
-                //
+                SelectFilter::make('peserta_id')
+                    ->label('Peserta')
+                    ->options(Peserta::all()->pluck('nama_tim', 'id'))
+                    ->searchable(),
+                    
+                SelectFilter::make('keterangan')
+                    ->label('Jenis Transaksi')
+                    ->options([
+                        'Beli' => 'Beli',
+                        'Soal Gratis' => 'Soal Gratis',
+                        'Jual - Benar' => 'Jual - Benar',
+                        'Jual - Salah' => 'Jual - Salah',
+                        'Modal' => 'Modal',
+                    ]),
+                    
+                SelectFilter::make('kode_soal')
+                    ->label('Kode Soal')
+                    ->options(Soal::all()->pluck('kode_soal', 'kode_soal'))
+                    ->searchable(),
+                    
+                Filter::make('created_at')
+                    ->form([
+                        \Filament\Forms\Components\DatePicker::make('created_from')->label('Dari Tanggal'),
+                        \Filament\Forms\Components\DatePicker::make('created_until')->label('Sampai Tanggal'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    })
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

@@ -13,7 +13,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Select;
 use App\Models\Soal;
 use Filament\Tables\Columns\TextColumn;
 use Maatwebsite\Excel\Facades\Excel;
@@ -22,6 +22,8 @@ use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Support\Facades\Storage;
+use Filament\Tables\Actions\BulkAction;
+use Illuminate\Database\Eloquent\Collection;
 
 
 
@@ -54,12 +56,12 @@ class PesertaResource extends Resource
             TextInput::make('anggota_2')->label('Anggota 2'),
             TextInput::make('anggota_3')->label('Anggota 3'),
 
-
-            CheckboxList::make('soal_gratis')
+            Select::make('soal_gratis')
                 ->label('Soal Gratis')
                 ->options(Soal::all()->pluck('kode_soal', 'kode_soal'))
-                ->columns(3)
-                ->searchable(),
+                ->multiple()
+                ->searchable()
+                ->preload(),
             ]);
     }
 
@@ -113,6 +115,58 @@ class PesertaResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    
+                    BulkAction::make('assign_soal_gratis')
+                        ->label('Assign Soal Gratis')
+                        ->icon('heroicon-o-gift')
+                        ->color('success')
+                        ->form([
+                            Select::make('soal_gratis')
+                                ->label('Pilih Soal Gratis')
+                                ->options(Soal::all()->pluck('kode_soal', 'kode_soal'))
+                                ->multiple()
+                                ->searchable()
+                                ->preload()
+                                ->required(),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            foreach ($records as $record) {
+                                $record->update([
+                                    'soal_gratis' => $data['soal_gratis']
+                                ]);
+                            }
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                    
+                    BulkAction::make('set_modal')
+                        ->label('Set Modal')
+                        ->icon('heroicon-o-currency-dollar')
+                        ->color('warning')
+                        ->form([
+                            TextInput::make('modal_amount')
+                                ->label('Jumlah Modal')
+                                ->numeric()
+                                ->default(50000)
+                                ->required(),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            foreach ($records as $record) {
+                                $record->update([
+                                    'saldo' => $data['modal_amount']
+                                ]);
+                                
+                                // Buat transaksi modal
+                                \App\Models\Transaksi::create([
+                                    'peserta_id' => $record->id,
+                                    'keterangan' => 'Modal',
+                                    'debet' => 0,
+                                    'kredit' => $data['modal_amount'],
+                                    'total_saldo' => $data['modal_amount'],
+                                    'modal_amount' => $data['modal_amount'],
+                                ]);
+                            }
+                        })
+                        ->deselectRecordsAfterCompletion(),
                 ]),
     
                 
