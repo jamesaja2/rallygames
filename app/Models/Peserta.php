@@ -14,8 +14,13 @@ class Peserta extends Model
     'saldo',
     'anggota_1',
     'anggota_2',
-    'anggota_3'
+    'anggota_3',
+    'soal_gratis'
 ];
+
+    protected $casts = [
+        'soal_gratis' => 'array'
+    ];
 
 public function transaksi()
 {

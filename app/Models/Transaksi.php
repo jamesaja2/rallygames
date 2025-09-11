@@ -24,6 +24,9 @@ class Transaksi extends Model
             if ($transaksi->keterangan === 'Beli') {
                 $transaksi->debet = $soal->harga_beli ?? 0;
                 $transaksi->kredit = 0;
+            } elseif ($transaksi->keterangan === 'Soal Gratis') {
+                $transaksi->debet = 0;
+                $transaksi->kredit = 0;
             } elseif ($transaksi->keterangan === 'Jual - Benar') {
                 $transaksi->debet = 0;
                 $transaksi->kredit = $soal->harga_benar ?? 0;

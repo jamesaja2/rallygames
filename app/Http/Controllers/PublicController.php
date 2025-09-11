@@ -57,16 +57,13 @@ class PublicController extends Controller
             
             $peserta_id = $request->peserta_id;
             $jenis = $request->jenis;
+            $peserta = Peserta::find($peserta_id);
+            
+            // Generate transaksi soal gratis jika belum ada
+            $this->generateSoalGratisTransaksi($peserta_id);
 
             if ($jenis === 'beli') {
-                // Untuk beli, tampilkan soal yang belum pernah dibeli
-                $soalsBeli = Transaksi::where('peserta_id', $peserta_id)
-                    ->where('keterangan', 'Beli')
-                    ->pluck('kode_soal');
-                
-                $soals = Soal::whereNotIn('kode_soal', $soalsBeli)->get();
-            } else {
-                // Untuk jual, tampilkan soal yang sudah dibeli tapi belum dijual
+                // Cek berapa soal yang sedang di-hold (dibeli tapi belum dijual)
                 $soalsBeli = Transaksi::where('peserta_id', $peserta_id)
                     ->where('keterangan', 'Beli')
                     ->pluck('kode_soal');
@@ -75,9 +72,35 @@ class PublicController extends Controller
                     ->whereIn('keterangan', ['Jual - Benar', 'Jual - Salah'])
                     ->pluck('kode_soal');
                 
-                $soals = Soal::whereIn('kode_soal', $soalsBeli)
-                    ->whereNotIn('kode_soal', $soalsJual)
-                    ->get();
+                // Soal yang sedang di-hold
+                $soalsHold = $soalsBeli->diff($soalsJual);
+                
+                // Cek batasan maksimal 3 soal
+                if ($soalsHold->count() >= 3) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Maksimal hold 3 soal. Jual soal yang sudah ada terlebih dahulu.',
+                        'soals' => collect([])
+                    ]);
+                }
+                
+                // Untuk beli, tampilkan soal yang belum pernah dibeli
+                $soals = Soal::whereNotIn('kode_soal', $soalsBeli)->get();
+                
+            } else {
+                // Untuk jual, tampilkan soal yang sudah dibeli (termasuk soal gratis) tapi belum dijual
+                $soalsBeli = Transaksi::where('peserta_id', $peserta_id)
+                    ->whereIn('keterangan', ['Beli', 'Soal Gratis'])
+                    ->pluck('kode_soal');
+                
+                $soalsJual = Transaksi::where('peserta_id', $peserta_id)
+                    ->whereIn('keterangan', ['Jual - Benar', 'Jual - Salah'])
+                    ->pluck('kode_soal');
+                
+                // Soal yang bisa dijual (sudah dibeli tapi belum dijual)
+                $availableSoals = $soalsBeli->diff($soalsJual);
+                
+                $soals = Soal::whereIn('kode_soal', $availableSoals)->get();
             }
 
             \Log::info('getSoalByPeserta result', ['soals_count' => $soals->count()]);
@@ -109,39 +132,9 @@ class PublicController extends Controller
             $peserta = Peserta::find($request->peserta_id);
             $soal = Soal::where('kode_soal', $request->kode_soal)->first();
             
-            // Cek apakah peserta sudah membeli soal (untuk jual)
-            if ($request->jenis === 'jual') {
-                $sudahBeli = Transaksi::where('peserta_id', $request->peserta_id)
-                    ->where('kode_soal', $request->kode_soal)
-                    ->where('keterangan', 'Beli')
-                    ->exists();
-                
-                if (!$sudahBeli) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Peserta harus membeli soal terlebih dahulu sebelum menjual!'
-                    ], 422);
-                }
-                
-                // Cek apakah sudah pernah jual soal ini
-                $sudahJual = Transaksi::where('peserta_id', $request->peserta_id)
-                    ->where('kode_soal', $request->kode_soal)
-                    ->whereIn('keterangan', ['Jual - Benar', 'Jual - Salah'])
-                    ->exists();
-                
-                if ($sudahJual) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Soal ini sudah pernah dijual sebelumnya!'
-                    ], 422);
-                }
-            }
+            // Cek apakah soal ini adalah soal gratis
+            $isSoalGratis = in_array($request->kode_soal, $peserta->soal_gratis ?? []);
             
-            $keterangan = '';
-            $feedback = '';
-            $debet = 0;
-            $kredit = 0;
-
             if ($request->jenis === 'beli') {
                 // Cek apakah sudah pernah beli soal ini
                 $sudahBeli = Transaksi::where('peserta_id', $request->peserta_id)
@@ -156,8 +149,27 @@ class PublicController extends Controller
                     ], 422);
                 }
                 
+                // Cek batasan maksimal 3 soal hold
+                $soalsBeli = Transaksi::where('peserta_id', $request->peserta_id)
+                    ->where('keterangan', 'Beli')
+                    ->pluck('kode_soal');
+                
+                $soalsJual = Transaksi::where('peserta_id', $request->peserta_id)
+                    ->whereIn('keterangan', ['Jual - Benar', 'Jual - Salah'])
+                    ->pluck('kode_soal');
+                
+                $soalsHold = $soalsBeli->diff($soalsJual);
+                
+                if ($soalsHold->count() >= 3) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Maksimal hold 3 soal! Jual soal yang sudah ada terlebih dahulu.'
+                    ], 422);
+                }
+                
                 $keterangan = 'Beli';
-                $kredit = $soal->harga_beli; // Kurangi saldo
+                $debet = $soal->harga_beli;
+                $kredit = 0;
                 
                 // Cek apakah saldo mencukupi
                 if ($peserta->saldo < $soal->harga_beli) {
@@ -174,55 +186,64 @@ class PublicController extends Controller
                 $peserta->save();
                 
             } else {
+                // Validasi untuk jual
+                // Cek apakah peserta sudah membeli soal (termasuk soal gratis)
+                $sudahBeli = Transaksi::where('peserta_id', $request->peserta_id)
+                    ->where('kode_soal', $request->kode_soal)
+                    ->whereIn('keterangan', ['Beli', 'Soal Gratis'])
+                    ->exists();
+                
+                if (!$sudahBeli) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Peserta harus membeli soal atau mendapatkan soal gratis terlebih dahulu sebelum menjual!'
+                    ], 422);
+                }
+                
+                // Cek apakah sudah pernah jual soal ini
+                $sudahJual = Transaksi::where('peserta_id', $request->peserta_id)
+                    ->where('kode_soal', $request->kode_soal)
+                    ->whereIn('keterangan', ['Jual - Benar', 'Jual - Salah'])
+                    ->exists();
+                
+                if ($sudahJual) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Soal ini sudah pernah dijual sebelumnya!'
+                    ], 422);
+                }
+                
                 // Jual - cek jawaban berdasarkan tipe soal
                 $jawabanBenar = false;
                 
                 if ($soal->tipe_soal === 'Pilihan Ganda') {
-                    // Untuk pilihan ganda, bandingkan langsung
                     $jawabanBenar = strtoupper(trim($request->jawaban)) === strtoupper(trim($soal->kunci_jawaban));
-                    
                 } elseif ($soal->tipe_soal === 'Pilihan Ganda Kompleks') {
-                    // Untuk pilihan ganda kompleks, bandingkan array
-                    $jawabanUser = explode(',', strtoupper(str_replace(' ', '', $request->jawaban)));
-                    $kunciJawaban = json_decode($soal->kunci_jawaban, true);
+                    $jawabanUser = is_array($request->jawaban) ? $request->jawaban : [$request->jawaban];
+                    $jawabanSoal = is_array($soal->kunci_jawaban) ? $soal->kunci_jawaban : explode(',', $soal->kunci_jawaban);
                     
-                    if (is_array($kunciJawaban)) {
-                        sort($jawabanUser);
-                        sort($kunciJawaban);
-                        $jawabanBenar = $jawabanUser === $kunciJawaban;
-                    }
+                    sort($jawabanUser);
+                    sort($jawabanSoal);
                     
+                    $jawabanBenar = $jawabanUser === $jawabanSoal;
                 } elseif ($soal->tipe_soal === 'Essai') {
-                    // Untuk essai, bandingkan dengan case-insensitive dan trim whitespace
-                    $jawabanUser = strtolower(trim($request->jawaban));
-                    $kunciJawaban = strtolower(trim($soal->kunci_jawaban));
-                    
-                    // Bisa ditambahkan logika fuzzy matching atau similarity check
-                    $jawabanBenar = $jawabanUser === $kunciJawaban;
-                    
-                    // Optional: tambahkan similarity check untuk essai
-                    // $similarity = similar_text($jawabanUser, $kunciJawaban, $percent);
-                    // $jawabanBenar = $percent >= 80; // 80% similarity threshold
+                    $jawabanBenar = stripos($request->jawaban, $soal->kunci_jawaban) !== false;
                 }
                 
+                $debet = 0;
                 if ($jawabanBenar) {
                     $keterangan = 'Jual - Benar';
-                    $debet = $soal->harga_benar; // Tambah saldo
-                    $feedback = "Jawaban kamu benar! Kamu dapat Rp" . number_format($soal->harga_benar, 0, ',', '.');
-                    
-                    // Update saldo peserta
-                    $peserta->saldo += $soal->harga_benar;
-                    $peserta->save();
-                    
+                    $kredit = $soal->harga_benar;
+                    $feedback = "Jawaban BENAR! Soal {$soal->kode_soal} terjual. Saldo bertambah Rp" . number_format($soal->harga_benar, 0, ',', '.');
                 } else {
                     $keterangan = 'Jual - Salah';
-                    $debet = $soal->harga_salah; // Tambah saldo (lebih kecil)
-                    $feedback = "Jawaban kamu salah. Kamu dapat Rp" . number_format($soal->harga_salah, 0, ',', '.');
-                    
-                    // Update saldo peserta
-                    $peserta->saldo += $soal->harga_salah;
-                    $peserta->save();
+                    $kredit = $soal->harga_salah;
+                    $feedback = "Jawaban SALAH. Soal {$soal->kode_soal} terjual. Saldo bertambah Rp" . number_format($soal->harga_salah, 0, ',', '.');
                 }
+                
+                // Update saldo peserta
+                $peserta->saldo += $kredit;
+                $peserta->save();
             }
 
             // Buat transaksi
@@ -238,7 +259,8 @@ class PublicController extends Controller
             return response()->json([
                 'success' => true,
                 'feedback' => $feedback,
-                'saldo_baru' => $peserta->fresh()->saldo
+                'saldo_baru' => $peserta->fresh()->saldo,
+                'is_soal_gratis' => $isSoalGratis
             ]);
             
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -275,5 +297,34 @@ class PublicController extends Controller
     public function getSoalByPesertaGet(Request $request)
     {
         return $this->getSoalByPeserta($request);
+    }
+    
+    /**
+     * Generate otomatis transaksi "Soal Gratis" untuk soal gratis peserta
+     */
+    public function generateSoalGratisTransaksi($peserta_id)
+    {
+        $peserta = Peserta::find($peserta_id);
+        if (!$peserta || !$peserta->soal_gratis) return;
+
+        foreach ($peserta->soal_gratis as $kodeSoal) {
+            // Cek apakah transaksi "Soal Gratis" sudah ada
+            $sudahAda = Transaksi::where('peserta_id', $peserta_id)
+                ->where('kode_soal', $kodeSoal)
+                ->where('keterangan', 'Soal Gratis')
+                ->exists();
+
+            if (!$sudahAda) {
+                // Buat transaksi "Soal Gratis" dengan harga 0
+                Transaksi::create([
+                    'peserta_id' => $peserta_id,
+                    'kode_soal' => $kodeSoal,
+                    'keterangan' => 'Soal Gratis',
+                    'debet' => 0,
+                    'kredit' => 0,
+                    'total_saldo' => $peserta->saldo,
+                ]);
+            }
+        }
     }
 }
