@@ -84,8 +84,15 @@ class PublicController extends Controller
                     ]);
                 }
                 
-                // Untuk beli, tampilkan soal yang belum pernah dibeli
-                $soals = Soal::whereNotIn('kode_soal', $soalsBeli)->get();
+                // Untuk beli, tampilkan soal yang belum pernah dibeli DAN belum pernah dijual
+                // Soal yang sudah dijual tidak boleh dibeli lagi (termasuk soal gratis yang sudah dijual)
+                $soalsYangSudahDijual = Transaksi::where('peserta_id', $peserta_id)
+                    ->whereIn('keterangan', ['Jual - Benar', 'Jual - Salah'])
+                    ->pluck('kode_soal');
+                
+                $soalsTidakBisaBeli = $soalsBeli->merge($soalsYangSudahDijual)->unique();
+                
+                $soals = Soal::whereNotIn('kode_soal', $soalsTidakBisaBeli)->get();
                 
             } else {
                 // Untuk jual, tampilkan soal yang sudah dibeli (termasuk soal gratis) tapi belum dijual
@@ -146,6 +153,19 @@ class PublicController extends Controller
                     return response()->json([
                         'success' => false,
                         'message' => 'Soal ini sudah pernah dibeli sebelumnya!'
+                    ], 422);
+                }
+                
+                // Cek apakah soal ini sudah pernah dijual (termasuk soal gratis)
+                $sudahDijual = Transaksi::where('peserta_id', $request->peserta_id)
+                    ->where('kode_soal', $request->kode_soal)
+                    ->whereIn('keterangan', ['Jual - Benar', 'Jual - Salah'])
+                    ->exists();
+                
+                if ($sudahDijual) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Soal ini sudah pernah dijual dan tidak bisa dibeli lagi!'
                     ], 422);
                 }
                 
